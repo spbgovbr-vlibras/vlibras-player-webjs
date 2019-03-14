@@ -1,0 +1,18 @@
+{
+  "name": "vlibras",
+  "version": "0.1.0",
+  "main": "src/index.js",
+  "scripts": {
+    "build": "webpack"
+  },
+  "dependencies": {
+    "inherits": "^2.0.1",
+    "object-assign": "^4.0.1",
+    "superagent": "^1.7.2"
+  },
+  "devDependencies": {
+    "copy-webpack-plugin": "^1.1.1",
+    "html-webpack-plugin": "^2.9.0",
+    "webpack": "^1.12.13"
+  }
+}

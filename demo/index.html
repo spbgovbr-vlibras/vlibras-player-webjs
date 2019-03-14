@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>VLibrasJS Demo</title>
+</head>
+<body>
+    <h1>VLibrasJS Demo</h1>
+
+    <div id="wrapper"></div>
+    <script src="../build/vlibras.js"></script>
+    <script>
+        var player = new VLibras.Player({
+            target: { name: 'rnp_webgl', path: '../build/target' }
+        });
+
+        player.on('load', function () {
+           console.log('Player loaded');
+        });
+
+        player.load(document.getElementById('wrapper'));
+    </script>
+</body>
+</html>
