@@ -122,7 +122,19 @@ Player.prototype._initializeTarget = function () {
 
   targetScript.src = this._getTargetScript();
   targetScript.onload = () => {
-    this.player = UnityLoader.instantiate("gameContainer", targetSetup);
+    this.player = UnityLoader.instantiate("gameContainer", targetSetup, {
+        compatibilityCheck: (_, accept, deny) => {
+          if (UnityLoader.SystemInfo.hasWebGL) {
+           console.log('Seu navegador suporta WEBGL');
+            return accept();
+          }
+
+          this.onError('unsupported');
+          alert('Seu navegador não suporta WEBGL');
+          console.log('Seu navegador não suporta WEBGL');
+          deny();
+        },
+      });
     this.playerManager.setPlayerReference(this.player);
   };
 
