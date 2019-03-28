@@ -1,17 +1,18 @@
 var window = require('window');
-var document = window.document;
-
 var assign = require('object-assign');
 var inherits = require('inherits');
 var path = require('path');
-
 var EventEmitter = require('events').EventEmitter;
+
+var config = require('./config.js');
 var PlayerManagerAdapter = require('./PlayerManagerAdapter.js');
 var GlosaTranslator = require('./GlosaTranslator.js');
 
+var document = window.document;
+
 function Player(options) {
   this.options = assign({
-    translator: 'http://35.232.189.139:8080/translate',
+    translator: config.translatorUrl,
     targetPath: 'target',
   }, options);
 
@@ -27,7 +28,12 @@ function Player(options) {
   this.playerManager.on('load', () => {
     this.loaded = true;
     this.emit('load');
-    this.play();
+
+    if (this.options.onLoad) {
+      this.options.onLoad();
+    } else {
+      this.play();
+    }
   });
 
   this.playerManager.on('progress', (progress) => {
@@ -68,6 +74,10 @@ Player.prototype.play = function (glosa) {
   if (this.glosa !== undefined && this.loaded) {
     this.playerManager.play(this.glosa);
   }
+};
+
+Player.prototype.playWellcome = function () {
+  this.playerManager.playWellcome();
 };
 
 Player.prototype.continue = function () {
@@ -136,6 +146,7 @@ Player.prototype._initializeTarget = function () {
         },
       });
     this.playerManager.setPlayerReference(this.player);
+    this.playerManager.setBaseUrl(config.dictionaryUrl);
   };
 
   document.body.appendChild(targetScript);

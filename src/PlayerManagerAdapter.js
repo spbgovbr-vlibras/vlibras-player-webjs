@@ -55,6 +55,14 @@ PlayerManagerAdapter.prototype.setRegion = function (region) {
   this._send('setRegion', region);
 };
 
+PlayerManagerAdapter.prototype.playWellcome = function () {
+  this._send('playWellcome');
+};
+
+PlayerManagerAdapter.prototype.setBaseUrl = function (url) {
+  this._send('setBaseUrl', url);
+};
+
 window.onLoadPlayer = function () {
   PlayerManagerAdapter.instance.emit('load');
 };
