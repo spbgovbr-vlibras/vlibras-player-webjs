@@ -7,7 +7,7 @@ function GlosaTranslator(endpoint) {
 GlosaTranslator.prototype.translate = function (text, callback) {
   console.log('Translate: ' + text);
 
-  request.get(this.endpoint).query({ text: text }).end(
+  request.post(this.endpoint, { text: text }).end(
     function (err, response) {
       if (err) {
         callback(undefined, err);
