@@ -77,21 +77,21 @@ Player.prototype.translate = function (text) {
     if (error) {
       this.play(text.toUpperCase());
       this.emit('error', 'translation_error');
-      this.translated = false;
       console.log('TRANSLATED : FALSE');
       return;
     }
     
     console.log('Translator answer:', gloss);
-    this.play(gloss);
+    this.play(gloss, true);
     this.emit('translate:end');
-    this.translated = true;
     console.log('TRANSLATED : TRUE');
   });
 };
 
-Player.prototype.play = function (glosa) {
+Player.prototype.play = function (glosa, fromTranslation = false) {
+  this.translated = fromTranslation;
   this.gloss = glosa || this.gloss;
+  
   if (this.gloss !== undefined && this.loaded) {
     this.changeStatus(STATUSES.preparing);
     this.playerManager.play(this.gloss);
