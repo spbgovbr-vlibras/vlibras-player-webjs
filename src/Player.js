@@ -43,6 +43,8 @@ function Player(options) {
     } else {
       this.play();
     }
+
+    this.playerManager.setBaseUrl(config.dictionaryUrl);
   });
 
   this.playerManager.on('progress', (progress) => {
@@ -77,14 +79,12 @@ Player.prototype.translate = function (text) {
     if (error) {
       this.play(text.toUpperCase());
       this.emit('error', 'translation_error');
-      console.log('TRANSLATED : FALSE');
       return;
     }
     
     console.log('Translator answer:', gloss);
     this.play(gloss, true);
     this.emit('translate:end');
-    console.log('TRANSLATED : TRUE');
   });
 };
 
@@ -155,28 +155,26 @@ Player.prototype._initializeTarget = function () {
   targetScript.src = this._getTargetScript();
   targetScript.onload = () => {
     this.player = UnityLoader.instantiate("gameContainer", targetSetup, {
-        compatibilityCheck: (_, accept, deny) => {
-          if (UnityLoader.SystemInfo.hasWebGL) {
-           console.log('Seu navegador suporta WEBGL');
-            return accept();
-          }
+      compatibilityCheck: (_, accept, deny) => {
+        if (UnityLoader.SystemInfo.hasWebGL) {
+          console.log('Seu navegador suporta WEBGL');
+          return accept();
+        }
 
-          this.onError('unsupported');
-          alert('Seu navegador não suporta WEBGL');
-          console.log('Seu navegador não suporta WEBGL');
-          deny();
-        },
-      });
+        this.onError('unsupported');
+        alert('Seu navegador não suporta WEBGL');
+        console.log('Seu navegador não suporta WEBGL');
+        deny();
+      },
+    });
+
     this.playerManager.setPlayerReference(this.player);
-    this.playerManager.setBaseUrl(config.dictionaryUrl);
   };
 
   document.body.appendChild(targetScript);
 };
 
 Player.prototype.changeStatus = function (status) {
-  console.log('CHANGE STATUS', this.status, '->', status);
-
   switch (status) { 
     case STATUSES.idle: 
       if (this.status === STATUSES.playing) {
