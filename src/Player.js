@@ -179,19 +179,16 @@ Player.prototype.changeStatus = function (status) {
     case STATUSES.idle: 
       if (this.status === STATUSES.playing) {
         this.status = status;
-        console.log('CHANGED STATUS !');
         this.emit('gloss:end');
       }
       break;
 
     case STATUSES.preparing:
-      console.log('CHANGED STATUS !');
       this.status = status;
       break;
 
     case STATUSES.playing: 
       if (this.status === STATUSES.preparing) {
-        console.log('CHANGED STATUS !');
         this.status = status;
         this.emit('gloss:start');
       }
