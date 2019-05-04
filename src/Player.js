@@ -38,13 +38,14 @@ function Player(options) {
     this.loaded = true;
     this.emit('load');
 
+    this.playerManager.setBaseUrl(config.dictionaryUrl);
+
     if (this.options.onLoad) {
       this.options.onLoad();
     } else {
       this.play();
     }
 
-    this.playerManager.setBaseUrl(config.dictionaryUrl);
   });
 
   this.playerManager.on('progress', (progress) => {
