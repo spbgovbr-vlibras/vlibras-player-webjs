@@ -146,11 +146,13 @@ Player.prototype.load = function (wrapper) {
 };
 
 Player.prototype._getTargetScript = function () {
-  return path.join(this.options.targetPath, 'UnityLoader.js');
+  return this.options.targetPath + '/UnityLoader.js';
+  //return path.join(this.options.targetPath, 'UnityLoader.js');
 };
 
 Player.prototype._initializeTarget = function () {
-  const targetSetup = path.join(this.options.targetPath, 'playerweb.json');
+  //const targetSetup = path.join(this.options.targetPath, 'playerweb.json');
+  const targetSetup = this.options.targetPath + '/playerweb.json';
   const targetScript = document.createElement('script');
 
   targetScript.src = this._getTargetScript();
