@@ -2,6 +2,7 @@ var window = require('window');
 var assign = require('object-assign');
 var inherits = require('inherits');
 var path = require('path');
+var url = require('url-join');
 var EventEmitter = require('events').EventEmitter;
 
 var config = require('./config.js');
@@ -83,7 +84,7 @@ Player.prototype.translate = function (text) {
       return;
     }
     
-    console.log('Translator answer:', gloss);
+    // console.log('Translator answer:', gloss);
     this.play(gloss, true);
     this.emit('translate:end');
   });
@@ -146,13 +147,15 @@ Player.prototype.load = function (wrapper) {
 };
 
 Player.prototype._getTargetScript = function () {
-  return this.options.targetPath + '/UnityLoader.js';
+  // console.log('Target Script: ' + url(this.options.targetPath, 'UnityLoader.js'));
+  return url(this.options.targetPath, 'UnityLoader.js');
   //return path.join(this.options.targetPath, 'UnityLoader.js');
 };
 
 Player.prototype._initializeTarget = function () {
   //const targetSetup = path.join(this.options.targetPath, 'playerweb.json');
-  const targetSetup = this.options.targetPath + '/playerweb.json';
+  // console.log('Target Setup: ' + url(this.options.targetPath, 'playerweb.json'));
+  const targetSetup = url(this.options.targetPath, 'playerweb.json');
   const targetScript = document.createElement('script');
 
   targetScript.src = this._getTargetScript();
@@ -160,13 +163,13 @@ Player.prototype._initializeTarget = function () {
     this.player = UnityLoader.instantiate("gameContainer", targetSetup, {
       compatibilityCheck: (_, accept, deny) => {
         if (UnityLoader.SystemInfo.hasWebGL) {
-          console.log('Seu navegador suporta WEBGL');
+          // console.log('Seu navegador suporta WEBGL');
           return accept();
         }
 
         this.onError('unsupported');
         alert('Seu navegador não suporta WEBGL');
-        console.log('Seu navegador não suporta WEBGL');
+        console.error('Seu navegador não suporta WEBGL');
         deny();
       },
     });

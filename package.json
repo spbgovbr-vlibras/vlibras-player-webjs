@@ -8,7 +8,8 @@
   "dependencies": {
     "inherits": "^2.0.1",
     "object-assign": "^4.0.1",
-    "superagent": "^1.7.2"
+    "superagent": "^1.7.2",
+    "url-join": "^4.0.0"
   },
   "devDependencies": {
     "copy-webpack-plugin": "^1.1.1",
