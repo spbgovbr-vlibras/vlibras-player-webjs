@@ -8,6 +8,7 @@ var EventEmitter = require('events').EventEmitter;
 var config = require('./config.js');
 var PlayerManagerAdapter = require('./PlayerManagerAdapter.js');
 var GlosaTranslator = require('./GlosaTranslator.js');
+var globalGlosaLenght = '';
 
 var document = window.document;
 
@@ -64,6 +65,15 @@ function Player(options) {
       this.changeStatus(STATUSES.idle);
     }
   });
+
+    this.playerManager.on('CounterGloss', (counter, glosaLenght) => {
+      this.emit('response:glosa', counter, glosaLenght);
+      globalGlosaLenght = glosaLenght;
+
+
+  });
+
+
 }
 
 inherits(Player, EventEmitter);
@@ -185,7 +195,7 @@ Player.prototype.changeStatus = function (status) {
     case STATUSES.idle: 
       if (this.status === STATUSES.playing) {
         this.status = status;
-        this.emit('gloss:end');
+        this.emit('gloss:end', globalGlosaLenght);
       }
       break;
 

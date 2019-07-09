@@ -78,6 +78,18 @@ window.onPlayingStateChange = function (
   );
 };
 
+window.CounterGloss = function (counter, glosaLenght) {
+    PlayerManagerAdapter.instance.emit(
+    'CounterGloss', counter, glosaLenght
+  );
+
+};
+
+
+window.glosaAQUI = function (resp) {
+  console.log(resp + "glosaAQUI");
+};
+
 function toInt(boolean) {
   return !boolean ? 0 : 1;
 };
