@@ -59,6 +59,11 @@ PlayerManagerAdapter.prototype.playWellcome = function () {
   this._send('playWellcome');
 };
 
+PlayerManagerAdapter.prototype.changeAvatar = function () {
+  this._send('Change');
+};
+
+
 PlayerManagerAdapter.prototype.setBaseUrl = function (url) {
   this._send('setBaseUrl', url);
 };
@@ -82,12 +87,12 @@ window.CounterGloss = function (counter, glosaLenght) {
     PlayerManagerAdapter.instance.emit(
     'CounterGloss', counter, glosaLenght
   );
-
 };
 
-
-window.glosaAQUI = function (resp) {
-  console.log(resp + "glosaAQUI");
+window.FinishWelcome = function (bool) {
+    PlayerManagerAdapter.instance.emit(
+    'FinishWelcome', bool
+  );
 };
 
 function toInt(boolean) {

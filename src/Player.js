@@ -45,7 +45,7 @@ function Player(options) {
     if (this.options.onLoad) {
       this.options.onLoad();
     } else {
-      this.play();
+      this.play(null, true);
     }
 
   });
@@ -66,11 +66,13 @@ function Player(options) {
     }
   });
 
-    this.playerManager.on('CounterGloss', (counter, glosaLenght) => {
-      this.emit('response:glosa', counter, glosaLenght);
-      globalGlosaLenght = glosaLenght;
+  this.playerManager.on('CounterGloss', (counter, glosaLenght) => {
+    this.emit('response:glosa', counter, glosaLenght);
+    globalGlosaLenght = glosaLenght;
+  });
 
-
+  this.playerManager.on('FinishWelcome', (bool) => {
+    this.emit('stop:welcome', bool);
   });
 
 
@@ -101,6 +103,7 @@ Player.prototype.translate = function (text) {
 };
 
 Player.prototype.play = function (glosa, fromTranslation = false) {
+
   this.translated = fromTranslation;
   this.gloss = glosa || this.gloss;
   
@@ -132,6 +135,10 @@ Player.prototype.stop = function () {
 
 Player.prototype.setSpeed = function (speed) {
   this.playerManager.setSpeed(speed);
+};
+
+Player.prototype.changeAvatar = function () {
+  this.playerManager.changeAvatar();
 };
 
 Player.prototype.toggleSubtitle = function () {
