@@ -34,6 +34,10 @@ PlayerManagerAdapter.prototype.play = function (glosa) {
   }
 };
 
+PlayerManagerAdapter.prototype.setPersonalization = function (personalization) {
+  this._send('setURL', personalization);
+};
+
 PlayerManagerAdapter.prototype.pause = function () {
   this._send('setPauseState', 1);
 };

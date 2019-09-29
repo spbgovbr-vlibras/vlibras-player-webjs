@@ -137,6 +137,10 @@ Player.prototype.setSpeed = function (speed) {
   this.playerManager.setSpeed(speed);
 };
 
+Player.prototype.setPersonalization = function (personalization) {
+  this.playerManager.setPersonalization(personalization);
+};
+
 Player.prototype.changeAvatar = function () {
   this.playerManager.changeAvatar();
 };
