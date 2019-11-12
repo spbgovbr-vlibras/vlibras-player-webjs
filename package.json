@@ -14,6 +14,7 @@
   "devDependencies": {
     "copy-webpack-plugin": "^1.1.1",
     "html-webpack-plugin": "^2.9.0",
-    "webpack": "^1.12.13"
+    "webpack": "^1.12.13",
+    "webpack-cli": "^3.3.9"
   }
 }
