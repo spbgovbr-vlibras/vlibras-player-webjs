@@ -141,8 +141,8 @@ Player.prototype.setPersonalization = function (personalization) {
   this.playerManager.setPersonalization(personalization);
 };
 
-Player.prototype.changeAvatar = function () {
-  this.playerManager.changeAvatar();
+Player.prototype.changeAvatar = function (avatarName) {
+  this.playerManager.changeAvatar(avatarName);
 };
 
 Player.prototype.toggleSubtitle = function () {

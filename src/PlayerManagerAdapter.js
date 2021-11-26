@@ -63,8 +63,8 @@ PlayerManagerAdapter.prototype.playWellcome = function () {
   this._send('playWellcome');
 };
 
-PlayerManagerAdapter.prototype.changeAvatar = function () {
-  this._send('Change');
+PlayerManagerAdapter.prototype.changeAvatar = function (avatarName) {
+  this._send('Change', avatarName);
 };
 
 
