@@ -1,17 +1,20 @@
-var window = require('window');
-var inherits = require('inherits');
-var EventEmitter = require('events').EventEmitter;
+var window = require("window");
+var inherits = require("inherits");
+var EventEmitter = require("events").EventEmitter;
 
-var GAME_OBJECT = 'PlayerManager';
+var GAME_OBJECT = "PlayerManager";
 
 function PlayerManagerAdapter() {
   if (PlayerManagerAdapter.instance) return PlayerManagerAdapter.instance;
 
   this.subtitle = true;
 
-  this.on('load', function () {
-    this._send('initRandomAnimationsProcess');
-  }.bind(this));
+  this.on(
+    "load",
+    function () {
+      this._send("initRandomAnimationsProcess");
+    }.bind(this)
+  );
 
   PlayerManagerAdapter.instance = this;
 }
@@ -28,83 +31,90 @@ PlayerManagerAdapter.prototype._send = function (method, params) {
 
 PlayerManagerAdapter.prototype.play = function (glosa) {
   if (glosa) {
-    this._send('playNow', glosa);
+    this._send("playNow", glosa);
   } else {
-    this._send('setPauseState', 0);
+    this._send("setPauseState", 0);
   }
 };
 
 PlayerManagerAdapter.prototype.setPersonalization = function (personalization) {
-  this.player.SendMessage('Avatar', 'setURL', personalization);
+  this.player.SendMessage("Avatar", "setURL", personalization);
 };
 
 PlayerManagerAdapter.prototype.pause = function () {
-  this._send('setPauseState', 1);
+  this._send("setPauseState", 1);
 };
 
 PlayerManagerAdapter.prototype.stop = function () {
-  this._send('stopAll');
+  this._send("stopAll");
 };
 
 PlayerManagerAdapter.prototype.setSpeed = function (speed) {
-  this._send('setSlider', speed);
+  this._send("setSlider", speed);
 };
 
 PlayerManagerAdapter.prototype.toggleSubtitle = function () {
   this.subtitle = !this.subtitle;
-  this._send('setSubtitlesState', toInt(this.subtitle));
+  this._send("setSubtitlesState", toInt(this.subtitle));
 };
 
 PlayerManagerAdapter.prototype.setRegion = function (region) {
-  this._send('setRegion', region);
+  this._send("setRegion", region);
 };
 
 PlayerManagerAdapter.prototype.playWellcome = function () {
-  this._send('playWellcome');
+  this._send("playWellcome");
 };
 
 PlayerManagerAdapter.prototype.changeAvatar = function (avatarName) {
-  this._send('Change', avatarName);
+  this._send("Change", avatarName);
 };
 
-
 PlayerManagerAdapter.prototype.setBaseUrl = function (url) {
-  this._send('setBaseUrl', url);
+  this._send("setBaseUrl", url);
 };
 
 window.onLoadPlayer = function () {
-  PlayerManagerAdapter.instance.emit('load');
+  PlayerManagerAdapter.instance.emit("load");
 };
 
 window.updateProgress = function (progress) {
-  PlayerManagerAdapter.instance.emit('progress', progress);
+  PlayerManagerAdapter.instance.emit("progress", progress);
 };
 
 window.onPlayingStateChange = function (
-  isPlaying, isPaused, isPlayingIntervalAnimation, isLoading, isRepeatable) {
+  isPlaying,
+  isPaused,
+  isPlayingIntervalAnimation,
+  isLoading,
+  isRepeatable
+) {
   PlayerManagerAdapter.instance.emit(
-    'stateChange', toBoolean(isPlaying), toBoolean(isPaused), toBoolean(isLoading)
+    "stateChange",
+    toBoolean(isPlaying),
+    toBoolean(isPaused),
+    toBoolean(isLoading)
   );
 };
 
 window.CounterGloss = function (counter, glosaLenght) {
-    PlayerManagerAdapter.instance.emit(
-    'CounterGloss', counter, glosaLenght
-  );
+  PlayerManagerAdapter.instance.emit("CounterGloss", counter, glosaLenght);
+};
+
+window.GetAvatar = function (avatar) {
+  PlayerManagerAdapter.instance.emit("GetAvatar", avatar);
 };
 
 window.FinishWelcome = function (bool) {
-    PlayerManagerAdapter.instance.emit(
-    'FinishWelcome', bool
-  );
+  PlayerManagerAdapter.instance.emit("FinishWelcome", bool);
 };
 
 function toInt(boolean) {
   return !boolean ? 0 : 1;
-};
+}
 
 function toBoolean(bool) {
-  return bool != 'False';
-};
+  return bool != "False";
+}
 
 module.exports = PlayerManagerAdapter;
