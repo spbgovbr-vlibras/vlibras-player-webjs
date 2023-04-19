@@ -11,6 +11,7 @@ var GlosaTranslator = require("./GlosaTranslator.js");
 var globalGlosaLenght = "";
 
 var document = window.document;
+var location = window.location;
 
 const STATUSES = {
   idle: "idle",
@@ -93,7 +94,7 @@ Player.prototype.translate = function (text) {
 
   this.text = text;
 
-  this.translator.translate(text, (gloss, error) => {
+  this.translator.translate(text, location.host, (gloss, error) => {
     if (error) {
       this.play(text.toUpperCase());
       this.emit("error", "translation_error");
