@@ -97,7 +97,8 @@ Player.prototype.translate = function (text) {
   this.translator.translate(text, location.host, (gloss, error) => {
     if (error) {
       this.play(text.toUpperCase());
-      this.emit("error", "translation_error");
+      this.emit("error", error === 'timeout_error'
+        ? error : "translation_error");
       return;
     }
 
