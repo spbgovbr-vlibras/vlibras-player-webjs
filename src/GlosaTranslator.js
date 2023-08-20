@@ -5,7 +5,7 @@ function GlosaTranslator(endpoint) {
 }
 
 GlosaTranslator.prototype.translate = function (text, domain, callback) {
-  let time = 5;
+  let time = 15;
   let hasTimeout = false;
   const size = text.split(' ').length;
 
