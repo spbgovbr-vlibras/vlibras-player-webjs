@@ -119,6 +119,7 @@ Player.prototype.play = function (glosa, fromTranslation = false) {
 
 Player.prototype.playWellcome = function () {
   this.playerManager.playWellcome();
+  this.emit("start:welcome");
 };
 
 Player.prototype.continue = function () {
