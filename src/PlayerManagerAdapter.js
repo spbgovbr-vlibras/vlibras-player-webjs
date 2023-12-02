@@ -38,7 +38,7 @@ PlayerManagerAdapter.prototype.play = function (glosa) {
 };
 
 PlayerManagerAdapter.prototype.setPersonalization = function (personalization) {
-  this.player.SendMessage("Avatar", "setURL", personalization);
+  this.player.SendMessage("CustomizationBridge", "setURL", personalization);
 };
 
 PlayerManagerAdapter.prototype.pause = function () {
