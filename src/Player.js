@@ -155,7 +155,7 @@ Player.prototype.toggleSubtitle = function () {
 };
 
 Player.prototype.setRegion = function (region) {
-  this.playerManager.setRegion(region);
+  this.playerManager.setBaseUrl(config.dictionaryUrl + region + '/');
 };
 
 Player.prototype.load = function (wrapper) {
