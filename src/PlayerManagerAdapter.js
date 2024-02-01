@@ -58,10 +58,6 @@ PlayerManagerAdapter.prototype.toggleSubtitle = function () {
   this._send("setSubtitlesState", toInt(this.subtitle));
 };
 
-PlayerManagerAdapter.prototype.setRegion = function (region) {
-  this._send("setRegion", region);
-};
-
 PlayerManagerAdapter.prototype.playWellcome = function () {
   this._send("playWellcome");
 };
