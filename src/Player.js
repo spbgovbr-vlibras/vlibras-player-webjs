@@ -114,11 +114,8 @@ Player.prototype.play = function (
   glosa,
   { fromTranslation = false, isEnabledStats = true } = {}
 ) {
-  console.log(isEnabledStats)
   if (!isEnabledStats && isDefaultUrl.bind(this)()) {
-    this.playerManager.setBaseUrl(
-      config.dictionaryStaticUrl + this.region + "/"
-    );
+    this.playerManager.setBaseUrl(config.dictionaryStaticUrl + this.region + "/");
   } else if (isEnabledStats && !isDefaultUrl.bind(this)()) {
     this.playerManager.setBaseUrl(config.dictionaryUrl + this.region + "/");
   }
