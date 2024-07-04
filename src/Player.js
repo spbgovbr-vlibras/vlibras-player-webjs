@@ -1,28 +1,32 @@
-var window = require('window');
-var assign = require('object-assign');
-var inherits = require('inherits');
-var path = require('path');
-var url = require('url-join');
-var EventEmitter = require('events').EventEmitter;
+var window = require("window");
+var assign = require("object-assign");
+var inherits = require("inherits");
+var path = require("path");
+var url = require("url-join");
+var EventEmitter = require("events").EventEmitter;
 
-var config = require('./config.js');
-var PlayerManagerAdapter = require('./PlayerManagerAdapter.js');
-var GlosaTranslator = require('./GlosaTranslator.js');
-var globalGlosaLenght = '';
+var config = require("./config.js");
+var PlayerManagerAdapter = require("./PlayerManagerAdapter.js");
+var GlosaTranslator = require("./GlosaTranslator.js");
+var globalGlosaLenght = "";
 
 var document = window.document;
+var location = window.location;
 
 const STATUSES = {
-  idle: 'idle',
-  preparing: 'preparing',
-  playing: 'playing',
+  idle: "idle",
+  preparing: "preparing",
+  playing: "playing",
 };
 
 function Player(options) {
-  this.options = assign({
-    translator: config.translatorUrl,
-    targetPath: 'target',
-  }, options);
+  this.options = assign(
+    {
+      translator: config.translatorUrl,
+      targetPath: "target",
+    },
+    options
+  );
 
   this.playerManager = new PlayerManagerAdapter();
   this.translator = new GlosaTranslator(this.options.translator);
@@ -35,53 +39,55 @@ function Player(options) {
   this.gameContainer = null;
   this.player = null;
   this.status = STATUSES.idle;
+  this.region = "BR";
 
-  this.playerManager.on('load', () => {
+  this.playerManager.on("load", () => {
     this.loaded = true;
-    this.emit('load');
+    this.emit("load");
 
     this.playerManager.setBaseUrl(config.dictionaryUrl);
 
     if (this.options.onLoad) {
       this.options.onLoad();
     } else {
-      this.play(null, true);
+      this.play(null, { fromTranslation: true });
     }
-
   });
 
-  this.playerManager.on('progress', (progress) => {
-    this.emit('animation:progress', progress);
+  this.playerManager.on("progress", (progress) => {
+    this.emit("animation:progress", progress);
   });
 
-  this.playerManager.on('stateChange', (isPlaying, isPaused, isLoading) => {
+  this.playerManager.on("stateChange", (isPlaying, isPaused, isLoading) => {
     if (isPaused) {
-      this.emit('animation:pause');
+      this.emit("animation:pause");
     } else if (isPlaying && !isPaused) {
-      this.emit('animation:play');
+      this.emit("animation:play");
       this.changeStatus(STATUSES.playing);
     } else if (!isPlaying && !isLoading) {
-      this.emit('animation:end');
+      this.emit("animation:end");
       this.changeStatus(STATUSES.idle);
     }
   });
 
-  this.playerManager.on('CounterGloss', (counter, glosaLenght) => {
-    this.emit('response:glosa', counter, glosaLenght);
+  this.playerManager.on("CounterGloss", (counter, glosaLenght) => {
+    this.emit("response:glosa", counter, glosaLenght);
     globalGlosaLenght = glosaLenght;
   });
 
-  this.playerManager.on('FinishWelcome', (bool) => {
-    this.emit('stop:welcome', bool);
+  this.playerManager.on("GetAvatar", (avatar) => {
+    this.emit("GetAvatar", avatar);
   });
 
-
+  this.playerManager.on("FinishWelcome", (bool) => {
+    this.emit("stop:welcome", bool);
+  });
 }
 
 inherits(Player, EventEmitter);
 
-Player.prototype.translate = function (text) {
-  this.emit('translate:start');
+Player.prototype.translate = function (text, { isEnabledStats = true } = {}) {
+  this.emit("translate:start");
 
   if (this.loaded) {
     this.stop();
@@ -89,24 +95,41 @@ Player.prototype.translate = function (text) {
 
   this.text = text;
 
-  this.translator.translate(text, (gloss, error) => {
+  this.translator.translate(text, location.host, (gloss, error) => {
     if (error) {
       this.play(text.toUpperCase());
-      this.emit('error', 'translation_error');
+      this.emit(
+        "error",
+        error === "timeout_error" ? error : "translation_error"
+      );
       return;
     }
-    
-    // console.log('Translator answer:', gloss);
-    this.play(gloss, true);
-    this.emit('translate:end');
+
+    this.play(gloss, { fromTranslation: true, isEnabledStats });
+    this.emit("translate:end");
   });
 };
 
-Player.prototype.play = function (glosa, fromTranslation = false) {
+Player.prototype.play = function (
+  glosa,
+  { fromTranslation = false, isEnabledStats = true } = {}
+) {
+  if (!isEnabledStats && isDefaultUrl.bind(this)()) {
+    this.playerManager.setBaseUrl(config.dictionaryStaticUrl + this.region + "/");
+  } else if (isEnabledStats && !isDefaultUrl.bind(this)()) {
+    this.playerManager.setBaseUrl(config.dictionaryUrl + this.region + "/");
+  }
+
+  function isDefaultUrl() {
+    return (
+      this.playerManager.currentBaseUrl ===
+      config.dictionaryUrl + this.region + "/"
+    );
+  }
 
   this.translated = fromTranslation;
   this.gloss = glosa || this.gloss;
-  
+
   if (this.gloss !== undefined && this.loaded) {
     this.changeStatus(STATUSES.preparing);
     this.playerManager.play(this.gloss);
@@ -115,6 +138,7 @@ Player.prototype.play = function (glosa, fromTranslation = false) {
 
 Player.prototype.playWellcome = function () {
   this.playerManager.playWellcome();
+  this.emit("start:welcome");
 };
 
 Player.prototype.continue = function () {
@@ -150,15 +174,16 @@ Player.prototype.toggleSubtitle = function () {
 };
 
 Player.prototype.setRegion = function (region) {
-  this.playerManager.setRegion(region);
+  this.region = region;
+  this.playerManager.setBaseUrl(config.dictionaryUrl + region + "/");
 };
 
 Player.prototype.load = function (wrapper) {
-  this.gameContainer = document.createElement('div');
+  this.gameContainer = document.createElement("div");
   this.gameContainer.setAttribute("id", "gameContainer");
-  this.gameContainer.classList.add('emscripten');
+  this.gameContainer.classList.add("emscripten");
 
-  if ('function' == typeof this.options.progress) {
+  if ("function" == typeof this.options.progress) {
     this.progress = new this.options.progress(wrapper);
   }
 
@@ -168,29 +193,26 @@ Player.prototype.load = function (wrapper) {
 };
 
 Player.prototype._getTargetScript = function () {
-  // console.log('Target Script: ' + url(this.options.targetPath, 'UnityLoader.js'));
-  return url(this.options.targetPath, 'UnityLoader.js');
+  return url(this.options.targetPath, "UnityLoader.js");
   //return path.join(this.options.targetPath, 'UnityLoader.js');
 };
 
 Player.prototype._initializeTarget = function () {
   //const targetSetup = path.join(this.options.targetPath, 'playerweb.json');
-  // console.log('Target Setup: ' + url(this.options.targetPath, 'playerweb.json'));
-  const targetSetup = url(this.options.targetPath, 'playerweb.json');
-  const targetScript = document.createElement('script');
+  const targetSetup = url(this.options.targetPath, "playerweb.json");
+  const targetScript = document.createElement("script");
 
   targetScript.src = this._getTargetScript();
   targetScript.onload = () => {
     this.player = UnityLoader.instantiate("gameContainer", targetSetup, {
       compatibilityCheck: (_, accept, deny) => {
         if (UnityLoader.SystemInfo.hasWebGL) {
-          // console.log('Seu navegador suporta WEBGL');
           return accept();
         }
 
-        this.onError('unsupported');
-        alert('Seu navegador não suporta WEBGL');
-        console.error('Seu navegador não suporta WEBGL');
+        this.onError("unsupported");
+        alert("Seu navegador não suporta WEBGL");
+        console.error("Seu navegador não suporta WEBGL");
         deny();
       },
     });
@@ -202,11 +224,11 @@ Player.prototype._initializeTarget = function () {
 };
 
 Player.prototype.changeStatus = function (status) {
-  switch (status) { 
-    case STATUSES.idle: 
+  switch (status) {
+    case STATUSES.idle:
       if (this.status === STATUSES.playing) {
         this.status = status;
-        this.emit('gloss:end', globalGlosaLenght);
+        this.emit("gloss:end", globalGlosaLenght);
       }
       break;
 
@@ -214,10 +236,10 @@ Player.prototype.changeStatus = function (status) {
       this.status = status;
       break;
 
-    case STATUSES.playing: 
+    case STATUSES.playing:
       if (this.status === STATUSES.preparing) {
         this.status = status;
-        this.emit('gloss:start');
+        this.emit("gloss:start");
       }
       break;
   }

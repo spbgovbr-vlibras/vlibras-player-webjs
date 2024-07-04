@@ -4,17 +4,25 @@ function GlosaTranslator(endpoint) {
   this.endpoint = endpoint;
 }
 
-GlosaTranslator.prototype.translate = function (text, callback) {
-  // console.log('Translate: ' + text);
+GlosaTranslator.prototype.translate = function (text, domain, callback) {
+  let time = 15;
+  let hasTimeout = false;
+  const size = text.split(' ').length;
 
-  request.post(this.endpoint, { text: text }).end(
+  if (size > 50) time += size * 0.4 / 10;
+
+  const timeout = setTimeout(() => {
+    hasTimeout = true;
+    callback(undefined, 'timeout_error');
+  }, time * 1000);
+
+  request.post(this.endpoint, { text: text, domain: domain }).end(
     function (err, response) {
-      if (err) {
-        callback(undefined, err);
-        return;
-      }
+      if (hasTimeout) return;
 
-      callback(response.text);
+      clearTimeout(timeout);
+      if (err) callback(undefined, err);
+      else callback(response.text);
     }
   );
 };
