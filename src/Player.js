@@ -39,6 +39,7 @@ function Player(options) {
   this.gameContainer = null;
   this.player = null;
   this.status = STATUSES.idle;
+  this.region = "BR";
 
   this.playerManager.on("load", () => {
     this.loaded = true;
@@ -49,7 +50,7 @@ function Player(options) {
     if (this.options.onLoad) {
       this.options.onLoad();
     } else {
-      this.play(null, true);
+      this.play(null, { fromTranslation: true });
     }
   });
 
@@ -85,7 +86,7 @@ function Player(options) {
 
 inherits(Player, EventEmitter);
 
-Player.prototype.translate = function (text) {
+Player.prototype.translate = function (text, { isEnabledStats = true } = {}) {
   this.emit("translate:start");
 
   if (this.loaded) {
@@ -97,17 +98,35 @@ Player.prototype.translate = function (text) {
   this.translator.translate(text, location.host, (gloss, error) => {
     if (error) {
       this.play(text.toUpperCase());
-      this.emit("error", error === 'timeout_error'
-        ? error : "translation_error");
+      this.emit(
+        "error",
+        error === "timeout_error" ? error : "translation_error"
+      );
       return;
     }
 
-    this.play(gloss, true);
+    this.play(gloss, { fromTranslation: true, isEnabledStats });
     this.emit("translate:end");
   });
 };
 
-Player.prototype.play = function (glosa, fromTranslation = false) {
+Player.prototype.play = function (
+  glosa,
+  { fromTranslation = false, isEnabledStats = true } = {}
+) {
+  if (!isEnabledStats && isDefaultUrl.bind(this)()) {
+    this.playerManager.setBaseUrl(config.dictionaryStaticUrl + this.region + "/");
+  } else if (isEnabledStats && !isDefaultUrl.bind(this)()) {
+    this.playerManager.setBaseUrl(config.dictionaryUrl + this.region + "/");
+  }
+
+  function isDefaultUrl() {
+    return (
+      this.playerManager.currentBaseUrl ===
+      config.dictionaryUrl + this.region + "/"
+    );
+  }
+
   this.translated = fromTranslation;
   this.gloss = glosa || this.gloss;
 
@@ -155,7 +174,8 @@ Player.prototype.toggleSubtitle = function () {
 };
 
 Player.prototype.setRegion = function (region) {
-  this.playerManager.setRegion(region);
+  this.region = region;
+  this.playerManager.setBaseUrl(config.dictionaryUrl + region + "/");
 };
 
 Player.prototype.load = function (wrapper) {
