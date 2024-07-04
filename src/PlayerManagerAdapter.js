@@ -8,6 +8,7 @@ function PlayerManagerAdapter() {
   if (PlayerManagerAdapter.instance) return PlayerManagerAdapter.instance;
 
   this.subtitle = true;
+  this.currentBaseUrl = "";
 
   this.on(
     "load",
@@ -68,6 +69,7 @@ PlayerManagerAdapter.prototype.changeAvatar = function (avatarName) {
 
 PlayerManagerAdapter.prototype.setBaseUrl = function (url) {
   this._send("setBaseUrl", url);
+  this.currentBaseUrl = url;
 };
 
 window.onLoadPlayer = function () {
