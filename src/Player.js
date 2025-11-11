@@ -1,7 +1,6 @@
 var window = require("window");
 var assign = require("object-assign");
 var inherits = require("inherits");
-var path = require("path");
 var url = require("url-join");
 var EventEmitter = require("events").EventEmitter;
 
@@ -39,7 +38,9 @@ function Player(options) {
   this.gameContainer = null;
   this.player = null;
   this.status = STATUSES.idle;
+  this.translateData = undefined;
   this.region = "BR";
+  this.sentiment = 'default';
 
   this.playerManager.on("load", () => {
     this.loaded = true;
@@ -71,7 +72,7 @@ function Player(options) {
   });
 
   this.playerManager.on("CounterGloss", (counter, glosaLenght) => {
-    this.emit("response:glosa", counter, glosaLenght);
+    this.emit("response:gloss", counter, glosaLenght);
     globalGlosaLenght = glosaLenght;
   });
 
@@ -89,20 +90,20 @@ inherits(Player, EventEmitter);
 Player.prototype.translate = function (text, { isEnabledStats = true } = {}) {
   this.emit("translate:start");
 
-  if (this.loaded) {
-    this.stop();
-  }
+  if (this.loaded) this.stop();
 
   this.text = text;
 
-  this.translator.translate(text, location.host, (gloss, error) => {
+  this.translator.translate(text, location.host, (response, error) => {
+    this.translateData = response;
+
     if (error) {
       this.play(text.toUpperCase());
       if (error === "timeout_error") this.emit("error", "timeout_error");
       else return this.emit("translate:end");
     }
 
-    this.play(gloss, { fromTranslation: true, isEnabledStats });
+    this.play(response.traducao, { fromTranslation: true, isEnabledStats });
     this.emit("translate:end");
   });
 };
@@ -166,6 +167,8 @@ Player.prototype.setPersonalization = function (personalization) {
 
 Player.prototype.applyEmotion = function (action, intensity) {
   this.playerManager.applyEmotion(action, intensity);
+  const match = action.match(/^Apply(.+)Emotion$/);
+  this.emotion = match ? match[1].toLowerCase() : undefined;
 };
 
 Player.prototype.changeAvatar = function (avatarName) {

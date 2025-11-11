@@ -13,13 +13,13 @@ GlosaTranslator.prototype.translate = function (text, domain, callback) {
     callback(undefined, 'timeout_error');
   }, time);
 
-  request.post(this.endpoint, { text: text, domain: domain }).end(
+  request.post(this.endpoint, { text, domain }).end(
     function (err, response) {
       if (hasTimeout) return;
 
       clearTimeout(timeout);
       if (err) callback(undefined, err);
-      else callback(response.text);
+      else callback(JSON.parse(response.text));
     }
   );
 };
